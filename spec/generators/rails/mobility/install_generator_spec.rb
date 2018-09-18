@@ -90,4 +90,34 @@ describe Mobility::InstallGenerator, type: :generator, orm: :active_record do
       expect((Pathname.new(destination_root) + "db" + "migrate").exist?).to eq(false)
     end
   end
+
+  describe "with destroy" do
+    before(:each) do
+      prepare_destination
+      run_generator
+    end
+
+    it "removes generated initializer" do
+      run_generator [], behavior: :revoke
+
+      expect(destination_root).to have_structure {
+        directory "config" do
+          directory "initializers" do
+            no_file "mobility.rb"
+          end
+        end
+      }
+    end
+
+    it "removes generated migrations" do
+      text_translations = migration_path(destination_root, "create_text_translations")
+      string_translations = migration_path(destination_root, "create_string_translations")
+
+      run_generator [], behavior: :revoke
+
+      # FIXME This should fail without my patch
+      expect(text_translations.exist?).to eq(false)
+      expect(string_translations.exist?).to eq(false)
+    end
+  end
 end if Mobility::Loaded::Rails

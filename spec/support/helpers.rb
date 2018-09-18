@@ -90,5 +90,14 @@ module Helpers
     def version_string
       "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}"
     end
+
+    def migration_path(root, name)
+      migration_root = Pathname.new(root) + "db" + "migrate"
+
+      # Defined in railties, returns the first migration with this name or nil
+      migration = Mobility::InstallGenerator.migration_exists? migration_root, name
+
+      Pathname.new(migration.to_s)
+    end
   end
 end
